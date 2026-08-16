@@ -43,35 +43,33 @@ excavate = MicroSwimmer([
 #Initialise swimming problem 
 prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0)
 
-# for i in range(0,stop = pi/4, step = pi/8)
-anterior.Cᵩ = pi/4
+for i in range(0,stop = pi/4, step = pi/16)
+    anterior.Cᵩ = C - i
 
-update_boundary!(excavate,0.0)
+    update_boundary!(excavate,0.0)
 
-# swimming
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0)
-solve_problem!(prob)
-traj = continue_periodic_trajectory(prob.traj, 10)
-# animate(traj, excavate)
+    # swimming
+    solve_problem!(prob)
+    traj = continue_periodic_trajectory(prob.traj, 10)
+    # animate(traj, excavate)
 
-#Fit helix to Trajectory
-helix = fit_helix(traj)
+    #Fit helix to Trajectory
+    helix = fit_helix(traj)
 
-#Append Axis velocity
-push!(vels,axis_velocity(helix))
-#Append Current curvature
-push!(curvs, C)
+    #Append Axis velocity
+    push!(vels,axis_velocity(helix))
+    #Append Current curvature
+    push!(curvs, C - i)
 
 #Update anterior
 
-# end
+end
 
-#Great Figure
+#Create Figure
 fig = Figure()
-ax = Axis(
+ax = Axis(fig[1,1],
     xlabel = "curvature angle",
-    ylabel! = "velocity"
+    ylabel = "velocity"
 )
 
 lines!(ax,curvs,vels)
-
