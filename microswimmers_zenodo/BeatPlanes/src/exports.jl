@@ -1,0 +1,6 @@
+export TwoParameterSweep
+export ChlamySimulation, generate_chlamy, run!, f1_beat_plane_orientations, f2_beat_plane_orientations, beatplane_modulation, modulate_orientation
+export change_disc
+export PhototaxisProblem, eyespot, eyespot_location, eyespot_orientation
+export FilterFeederSimulation, generate_filter_feeder, generate_filter_feeder_random_phase
+export Excavate2ChlamySimulation, generate_e2c
