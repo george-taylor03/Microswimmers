@@ -6,9 +6,9 @@ design(f, limits=(-1., 15., -5., 5., -5., 5.))
 
 ## PlanerstandingwaveFlagellum (Length, Beat Freq, Static curvature, Real part vec amp, imaginary part vec amp, standing wave start / stop, height of wave)
 # f = PlanarStandingWaveFlagellum(10., 2π, 0.0, [0., 0.4, 0.25, 0.], [0.0, -0.15, 0.4, 0.0])
-f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
+f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586 * 5, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
-posterior = PlanarVanedFlagellum(f, 0.1, 0.9, 1.0)
+posterior = PlanarVanedFlagellum(f, 0.1, 0.6, .7)
 design(posterior, limits=(-1., 15., -5., 5., -5., 5.))
 
 
@@ -38,18 +38,18 @@ scatter(b.disc.quad_pts, markersize=7)
 
 ## Construct discretised parts
 excavate = MicroSwimmer([
-    Part(body, 313, 1117),
-    Part(posterior, 31, 117; location=[-3.8, 0.0, 0.2],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
-    Part(anterior, 31, 117; location=[-3.9, 0., 0],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
+    Part(body, 313, 3117),
+    Part(posterior, 31, 117; location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
+    Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
 ])
 arrange!(excavate, grange=-7:0.05:7)
 animate(excavate)
 ## Arrange flagella
 
 # swimming
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0)
+prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
 solve_problem!(prob)
-traj = continue_periodic_trajectory(prob.traj, 45)
+traj = continue_periodic_trajectory(prob.traj, 100)
 animate(traj, excavate)
 
 # feeding
