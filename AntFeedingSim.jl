@@ -66,7 +66,7 @@ eff = zeros(nele,nazi)
 # #For loop to investigate 
 for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
-    for (i, elv) in ennumerate(eleCurvs)
+    for (i, elv) in enumerate(eleCurvs)
         anterior.C_θ = elv
         
         #Start from bottom left (azi and ele -pi/4 to start)
