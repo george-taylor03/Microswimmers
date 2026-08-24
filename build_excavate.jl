@@ -6,7 +6,7 @@ design(f, limits=(-1., 15., -5., 5., -5., 5.))
 
 ## PlanerstandingwaveFlagellum (Length, Beat Freq, Static curvature, Real part vec amp, imaginary part vec amp, standing wave start / stop, height of wave)
 # f = PlanarStandingWaveFlagellum(10., 2π, 0.0, [0., 0.4, 0.25, 0.], [0.0, -0.15, 0.4, 0.0])
-f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586 * 5, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
+f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
 posterior = PlanarVanedFlagellum(f, 0.1, 0.6, .7)
 design(posterior, limits=(-1., 15., -5., 5., -5., 5.))
