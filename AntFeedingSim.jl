@@ -119,7 +119,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,eff)
+hm = heatmap!(ax,aziCurvs,eleCurvs,eff)
 
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
