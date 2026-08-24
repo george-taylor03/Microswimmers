@@ -100,7 +100,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,vels)
+hm = heatmap!(ax,aziCurvs,eleCurvs,vels)
 
 Colorbar(fig[1,2],hm,label = "velocity (μm/beat)")
 
@@ -126,11 +126,11 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,tor)
+hm = heatmap!(ax,aziCurvs,eleCurvs,tor)
 
 Colorbar(fig[1,2],hm,label = "Torsion")
 
-save("curvatureANDAngTorsionHEAT.png",fig)
+save("curvatureANDTorsionHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -139,11 +139,11 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,pol)
+hm = heatmap!(ax,aziCurvs,eleCurvs,pol)
 
 Colorbar(fig[1,2],hm,label = "Polar Angle")
 
-save("curvatureANDAngPolarHEAT.png",fig)
+save("curvatureANDPolarHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -152,8 +152,8 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,aziDir)
+hm = heatmap!(ax,aziCurvs,eleCurvs,aziDir)
 
 Colorbar(fig[1,2],hm,label = "Azimuthal Direction")
 
-save("curvatureANDAngAzidirHEAT.png",fig)
+save("curvatureANDAzidirHEAT.png",fig)
