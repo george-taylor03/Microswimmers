@@ -20,25 +20,29 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # excavate_body_tool(body)
 
 #azimuthal curvature
-azuCurvs = collect(-pi/4:pi/32:pi/4)
+aziCurvs = collect(-pi/4:pi/32:pi/4)
 
 #elevation curvatures
 eleCurvs = collect(-pi/4:pi/32:pi/4)
 
+#Number of azi and ele ppoints
+nazi = length(aziCurvs)
+nele = length(eleCurvs)
+
 #All Velocities matrix
-vels = zeros(17,17)
+vels = zeros(nele,nazi)
 
 #Angular velocites
-angVels = zeros(17,17)
+angVels = similar(vels)
 
 #Torsion
-tor = zeros(17,17)
+tor = similar(vels)
 
 #Polar Direction
-pol = zeros(17,17)
+pol = similar(vels)
 
 #azimuthal Direction
-aziDir = zeros(17,17)
+aziDir = similar(vels)
 
 # anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
 anterior = ThreeDimensionalFlagellum{Float64}(9.0, 1.0, 0.0, 1.16, 14.0, 0.16, 1.0, 0.8, 0.53, 21.0, -0.16, 0.0, 0.3584073464102069)
@@ -57,14 +61,13 @@ prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
 
 
 # #For loop to investigate 
-for azi in range(start = -pi/4, stop = pi/4, step = pi/32)
+for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
-    #Gets correct index (1 indexing not 0)
-    col = round(Int,(azi / (pi/32)+9))
-    for elv in range(start = -pi/4, stop = pi/4, step = pi/32)
+    for (i, elv) in ennumerate(eleCurvs)
         anterior.C_θ = elv
         
-        row = round(Int,(elv / (pi/32)+9))
+        #Start from bottom left (azi and ele -pi/4 to start)
+        row = length(eleCurvs) - i + 1
 
         #update parameters
         update_boundary!(excavate,0.0)
@@ -77,15 +80,11 @@ for azi in range(start = -pi/4, stop = pi/4, step = pi/32)
         #Fit helix to Trajectory
         helix = fit_helix(traj)
 
-        #Append Axis velocity
+        #Get helix quantites
         vels[row,col] = axis_velocity(helix)
-
         angVels[row,col] = axis_angular_velocity(helix)
-
         tor[row,col] = torsion(helix)
-
         pol[row,col] = axis_polar_angle(helix)
-
         aziDir[row,col] = axis_azimuthal_angle(helix)
     end
 end
@@ -114,7 +113,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,angVels)
+hm = heatmap!(ax,aziCurvs,eleCurvs,angVels)
 
 Colorbar(fig[1,2],hm,label = "Angular Velocity (μm/beat)")
 

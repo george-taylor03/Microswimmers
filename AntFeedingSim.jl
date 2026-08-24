@@ -50,22 +50,26 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 r = 3.9
 
 #azimuthal curvature
-azuCurvs = collect(-pi/4:pi/32:pi/4)
+aziCurvs = collect(-pi/4:pi/32:pi/4)
 
 #elevation curvatures
 eleCurvs = collect(-pi/4:pi/32:pi/4)
 
-#All Effeciencys
-eff = zeros(17,17)
+#Number of azi and ele ppoints
+nazi = length(aziCurvs)
+nele = length(eleCurvs)
 
-for azi in range(start = -pi/4, stop = pi/4, step = pi/32)
+#All Effeciencys
+eff = zeros(nele,nazi)
+
+# #For loop to investigate 
+for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
-    #Gets correct index (1 indexing not 0)
-    col = round(Int,(azi / (pi/32)+9))
-    for elv in range(start = -pi/4, stop = pi/4, step = pi/32)
+    for (i, elv) in ennumerate(eleCurvs)
         anterior.C_θ = elv
         
-        row = round(Int,(elv / (pi/32)+9))
+        #Start from bottom left (azi and ele -pi/4 to start)
+        row = length(eleCurvs) - i + 1
 
         anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
 
@@ -114,9 +118,9 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,azuCurvs,eleCurvs,vels)
+hm = heatmap!(ax,azuCurvs,eleCurvs,eff)
 
-Colorbar(fig[1,2],hm,label = "velocity (μm/beat)")
+Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
 save("curvatureFeedingHEAT.png",fig)
 
