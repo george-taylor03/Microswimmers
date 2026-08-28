@@ -44,6 +44,9 @@ pol = similar(vels)
 #azimuthal Direction
 aziDir = similar(vels)
 
+#Curvature
+curv = similar(vels)
+
 anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
 # anterior = ThreeDimensionalFlagellum{Float64}(9.0, 1.0, 0.0, 1.16, 14.0, 0.16, 1.0, 0.8, 0.53, 21.0, -0.16, 0.0, 0.3584073464102069)
 
