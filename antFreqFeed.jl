@@ -50,27 +50,27 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 #Radius
 r = 3.9
 
-#azimuthal Amplitude
-aziAmp = collect(0:0.1:1.5)
+#azimuthal Frequency
+aziFrq = collect(0:0.25:5)
 
-#elevation Amplitude
-eleAmp = collect(0:0.1:1.5)
+#elevation Frequency
+eleFrq = collect(0:0.25:5)
 
 #Number of azi and ele ppoints
-nazi = length(aziAmp)
-nele = length(eleAmp)
+nazi = length(aziFrq)
+nele = length(eleFrq)
 
 #All Effeciencys
 eff = zeros(nele,nazi)
 
 # #For loop to investigate 
-for (col, azi) in enumerate(aziAmp)
-    anterior.Aᵩ = azi
-    for (i, elv) in enumerate(eleAmp)
-        anterior.A_θ = elv
+for (col, azi) in enumerate(aziFrq)
+    anterior.fᵩ = azi
+    for (i, elv) in enumerate(eleFrq)
+        anterior.f_θ = elv
         
         #Start from bottom left (azi and ele -pi/4 to start)
-        row = length(eleAmp) - i + 1
+        row = length(eleFrq) - i + 1
 
         anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
 
@@ -114,14 +114,14 @@ end
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,eff)
+hm = heatmap!(ax,aziFrq,eleFrq,eff)
 
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
-save("AmpFeedingHEAT.png",fig)
+save("FrequencyFeedingHEAT.png",fig)
 

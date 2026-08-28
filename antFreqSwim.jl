@@ -19,15 +19,15 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # jakoba_pars = (a = 3.9, b = 2.2, c = 2.2, a_g = 3.9, b_g = 2.2, c_g = 2.2, p_a = 2, p_b = 2, p_c = 2, z_s = 0.85, θ = 0.0, κ_x = 0.1, κ_y = 0.15)
 # excavate_body_tool(body)
 
-#azimuthal Amplitude
-aziAmp = collect(0:0.5:5)
+#azimuthal Frequency
+aziFrq = collect(0:0.25:5)
 
-#elevation Amplitude
-eleAmp = collect(0:0.5:5)
+#elevation Frequency
+eleFrq = collect(0:0.25:5)
 
 #Number of azi and ele ppoints
-nazi = length(aziAmp)
-nele = length(eleAmp)
+nazi = length(aziFrq)
+nele = length(eleFrq)
 
 #All Velocities matrix
 vels = zeros(nele,nazi)
@@ -64,12 +64,12 @@ prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
 
 
 # #For loop to investigate 
-for (col, azi) in enumerate(aziAmp)
+for (col, azi) in enumerate(aziFrq)
     anterior.fᵩ = azi
-    for (i, elv) in enumerate(eleAmp)
+    for (i, elv) in enumerate(eleFrq)
         anterior.f_θ = elv
         
-        row = length(eleAmp) - i + 1
+        row = length(eleFrq) - i + 1
 
         #update parameters
         update_boundary!(excavate,0.0)
@@ -98,79 +98,79 @@ end
 #Create Figure
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,vels)
+hm = heatmap!(ax,aziFrq,eleFrq,vels)
 
 Colorbar(fig[1,2],hm,label = L"Velocity\;  v\;(\mu\mathrm{m}/\text{beat})")
 
-save("AmpitudeANDVelocityHEAT.png",fig)
+save("FrequencyANDVelocityHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,angVels)
+hm = heatmap!(ax,aziFrq,eleFrq,angVels)
 
 Colorbar(fig[1,2],hm,label = L"Angular \; Velocity \; \omega\;\text{(rad/beat)}")
 
-save("AmpitudeANDAngVelocityHEAT.png",fig)
+save("FrequencyANDAngVelocityHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,tor)
+hm = heatmap!(ax,aziFrq,eleFrq,tor)
 
 Colorbar(fig[1,2],hm,label = L"Torsion \; \tau\;(\mu\mathrm{m}^{-1})")
 
-save("AmpitudeANDTorsionHEAT.png",fig)
+save("FrequencyANDTorsionHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,pol)
+hm = heatmap!(ax,aziFrq,eleFrq,pol)
 
 
 Colorbar(fig[1,2],hm,label = L"Polar \; Angle \; \theta\;\text{(rad)}")
 
-save("AmpitudeANDPolarHEAT.png",fig)
+save("FrequencyANDPolarHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,aziDir)
+hm = heatmap!(ax,aziFrq,eleFrq,aziDir)
 
 Colorbar(fig[1,2],hm,label = L"Azimuthal \; Direction \; \phi\;\text{(rad)}")
 
-save("AmpitudeANDAzidirHEAT.png",fig)
+save("FrequencyANDAzidirHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Ampitude",
-    ylabel = "Elevation Ampitude",
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,curvature)
+hm = heatmap!(ax,aziFrq,eleFrq,curv)
 
 Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
 
-save("AmpitudeANDcurvatureHEAT.png",fig)
+save("FrequencyANDcurvatureHEAT.png",fig)
