@@ -85,6 +85,7 @@ for (col, azi) in enumerate(aziAmp)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
         aziDir[row,col] = axis_azimuthal_angle(helix)
+        curv[row,col] = curvature(helix)
     end
 end
 
@@ -101,9 +102,9 @@ ax = Axis(fig[1,1],
 
 hm = heatmap!(ax,aziAmp,eleAmp,vels)
 
-Colorbar(fig[1,2],hm,label = "velocity (μm/beat)")
+Colorbar(fig[1,2],hm,label = L"Velocity\;  v\;(\mu\mathrm{m}/\text{beat})")
 
-save("AmpANDVelocityHEAT.png",fig)
+save("AmpitudeANDVelocityHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -114,9 +115,9 @@ ax = Axis(fig[1,1],
 
 hm = heatmap!(ax,aziAmp,eleAmp,angVels)
 
-Colorbar(fig[1,2],hm,label = "Angular Velocity (μm/beat)")
+Colorbar(fig[1,2],hm,label = L"Angular \; Velocity \; \omega\;\text{(rad/beat)}")
 
-save("AmpANDAngVelocityHEAT.png",fig)
+save("AmpitudeANDAngVelocityHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -127,9 +128,9 @@ ax = Axis(fig[1,1],
 
 hm = heatmap!(ax,aziAmp,eleAmp,tor)
 
-Colorbar(fig[1,2],hm,label = "Torsion")
+Colorbar(fig[1,2],hm,label = L"Torsion \; \tau\;(\mu\mathrm{m}^{-1})")
 
-save("AmpANDTorsionHEAT.png",fig)
+save("AmpitudeANDTorsionHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -140,9 +141,10 @@ ax = Axis(fig[1,1],
 
 hm = heatmap!(ax,aziAmp,eleAmp,pol)
 
-Colorbar(fig[1,2],hm,label = "Polar Angle")
 
-save("AmpANDPolarHEAT.png",fig)
+Colorbar(fig[1,2],hm,label = L"Polar \; Angle \; \theta\;\text{(rad)}")
+
+save("AmpitudeANDPolarHEAT.png",fig)
 
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -153,6 +155,19 @@ ax = Axis(fig[1,1],
 
 hm = heatmap!(ax,aziAmp,eleAmp,aziDir)
 
-Colorbar(fig[1,2],hm,label = "Azimuthal Direction")
+Colorbar(fig[1,2],hm,label = L"Azimuthal \; Direction \; \phi\;\text{(rad)}")
 
-save("AmpANDAzidirHEAT.png",fig)
+save("AmpitudeANDAzidirHEAT.png",fig)
+
+fig = Figure()
+ax = Axis(fig[1,1],
+    xlabel = "Azimuthal Ampitude",
+    ylabel = "Elevation Ampitude",
+)
+
+
+hm = heatmap!(ax,aziAmp,eleAmp,curvature)
+
+Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
+
+save("AmpitudeANDcurvatureHEAT.png",fig)
