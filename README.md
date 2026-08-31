@@ -1,10 +1,5 @@
 # Microswimmers
 
-This repository designed to run a variety of parameter analysis on Microswimmers using the Microswimmer.jl package.
-We focus our analysis on the Jakoba organism and aim to study its swimming and feeding methods.
-
-# Microswimmers
-
 Systematic parameter analysis of **Jakoba** microswimmers using the
 [MicroSwimmers.jl](https://github.com/micromotility-lab/MicroSwimmer.jl).
 
