@@ -94,7 +94,7 @@ for (col, azi) in enumerate(aziCurvs)
         for t in range(0,1,10)[1:end-1]
             update_boundary!(rprob, t)
             solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar2(u, 0.0, 0.0, 25, r))
+            push!(fluxes, velocity_flux_polar2(u, 0.0, 0.0, 0.25, r))
             push!(powers, total_power(rprob))
         end     
         flux = mean(fluxes)
