@@ -6,11 +6,12 @@ using FastGaussQuadrature
 using Statistics
 include("excavate_body_design.jl")
 
-function velocity_flux_polar2(u, x0, y0, z, R; Nr=20, Nθ=20)
+function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
+    #Ellipsoid R=1
+    R=1
+
     rs_raw, wrs = gausslegendre(Nr)
     θs_raw, wθs = gausslegendre(Nθ)
-
-    # ϕs_raw, wϕs = gausslegendre(Nϕ)
 
     # Affine transforms
     rs = 0.5 * R * (rs_raw .+ 1)  # r ∈ [0, R]
@@ -21,10 +22,10 @@ function velocity_flux_polar2(u, x0, y0, z, R; Nr=20, Nθ=20)
 
     total_flux = 0.0
     for (r, wr) in zip(rs, wrs), (θ, wθ) in zip(θs, wθs)
-        x = x0 + r * cos(θ)
-        y = y0 + r * sin(θ)
+        x = x0 + r * cos(θ) * a
+        y = y0 + r * sin(θ) * b
         vel = u([x, y, z])
-        total_flux += vel[3] * r * wr * wθ  # extra r from polar area element
+        total_flux += vel[3] * r * wr * wθ * a * b # extra r from polar area element
     end
 
     total_flux
@@ -46,9 +47,6 @@ el = SuperEllipsoid(3.9, 2.2, 2.2)
 groove = Posed(SuperEllipsoid(3.9, 2.2, 2.2; κx = 0.1, κy = 0.15), Frame([0., 0., 0.85], MicroSwimmers.I3))
 body = ImplicitExcavateBody(el, groove, 50.0) 
 # jakoba_pars = (a = 3.9, b = 2.2, c = 2.2, a_g = 3.9, b_g = 2.2, c_g = 2.2, p_a = 2, p_b = 2, p_c = 2, z_s = 0.85, θ = 0.0, κ_x = 0.1, κ_y = 0.15)
-
-#Radius
-r = 3.9
 
 #azimuthal curvature
 aziCurvs = collect(-pi/4:pi/32:pi/4)
@@ -94,7 +92,7 @@ for (col, azi) in enumerate(aziCurvs)
         for t in range(0,1,10)[1:end-1]
             update_boundary!(rprob, t)
             solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar2(u, 0.0, 0.0, 0.25, r))
+            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0.0, 0.0, 1.5, 3.9, 2.2))
             push!(powers, total_power(rprob))
         end     
         flux = mean(fluxes)

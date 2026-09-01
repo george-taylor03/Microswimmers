@@ -169,7 +169,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziAmp,eleAmp,curvature)
+hm = heatmap!(ax,aziAmp,eleAmp,curv)
 
 Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
 
