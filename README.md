@@ -1,7 +1,7 @@
 # Microswimmers
 
 Systematic parameter analysis of **Jakoba** microswimmers using the
-[MicroSwimmers.jl](https://github.com/micromotility-lab/MicroSwimmer.jl).
+[MicroSwimmers.jl](https://github.com/micromotility-lab/MicroSwimmers.jl).
 
 Our analysis focuses on the Jakoba microorganism and studies its change in swimming performance and feeding efficiency.
 
