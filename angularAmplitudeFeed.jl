@@ -101,11 +101,13 @@ for (col, azi) in enumerate(aziAmp)
         for t in range(0,1,10)[1:end-1]
             update_boundary!(rprob, t)
             solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 15, 3.9, 2.2))
+            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
             push!(powers, abs(total_power(rprob)))
         end     
         flux = mean(fluxes)
         power = mean(powers)
+                @info "" flux
+        @info "" power
 
         e = (flux^2)  / power
 
