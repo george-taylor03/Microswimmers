@@ -51,10 +51,10 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 r = 3.9
 
 #azimuthal Amplitude
-aziWave = collect(0:0.1:1.5)
+aziWave = collect(5:0.5:15)
 
 #elevation Amplitude
-eleWave = collect(0:0.1:1.5)
+eleWave = collect(5:0.5:15)
 
 #Number of azi and ele ppoints
 nazi = length(aziWave)
@@ -99,7 +99,7 @@ for (col, azi) in enumerate(aziWave)
         end     
         flux = mean(fluxes)
         power = mean(powers)
-                @info "" flux
+        @info "" flux
         @info "" power
 
         e = (flux^2)  / power
