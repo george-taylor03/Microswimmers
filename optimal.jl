@@ -7,12 +7,12 @@ using Statistics
 include("excavate_body_design.jl")
 
 
-function runSwim(swimmer)
+function runSwim(excavate)
     # swimming
     prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
     solve_problem!(prob)
-    traj = continue_periodic_trajectory(prob.traj, 10)
-    # animate(traj, excavate)
+    traj = continue_periodic_trajectory(prob.traj, 100)
+    animate(traj, excavate)
 
     #Fit helix to Trajectory
     helix = fit_helix(traj)
@@ -20,10 +20,7 @@ function runSwim(swimmer)
     helix
 end
 
-function runFeed(swimmer)
-    #Radius
-    r = 3.9
-
+function runFeed(excavate)
     #Initialise swimming problem 
     rprob = ResistanceProblem(excavate, eps=0.1, wall=true)
     # Update Problem
@@ -36,20 +33,22 @@ function runFeed(swimmer)
         for t in range(0,1,10)[1:end-1]
             update_boundary!(rprob, t)
             solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar2(u, 0.0, 0.0, 25, r))
+            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
             push!(powers, total_power(rprob))
         end     
     flux = mean(fluxes)
     power = mean(powers)
 
     e = (flux^2)  / power
+    e,flux
 end
 
-function velocity_flux_polar2(u, x0, y0, z, R; Nr=20, Nθ=20)
+function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
+    #Ellipsoid R=1
+    R=1
+
     rs_raw, wrs = gausslegendre(Nr)
     θs_raw, wθs = gausslegendre(Nθ)
-
-    # ϕs_raw, wϕs = gausslegendre(Nϕ)
 
     # Affine transforms
     rs = 0.5 * R * (rs_raw .+ 1)  # r ∈ [0, R]
@@ -60,10 +59,10 @@ function velocity_flux_polar2(u, x0, y0, z, R; Nr=20, Nθ=20)
 
     total_flux = 0.0
     for (r, wr) in zip(rs, wrs), (θ, wθ) in zip(θs, wθs)
-        x = x0 + r * cos(θ)
-        y = y0 + r * sin(θ)
+        x = x0 + r * cos(θ) * a
+        y = y0 + r * sin(θ) * b
         vel = u([x, y, z])
-        total_flux += vel[3] * r * wr * wθ  # extra r from polar area element
+        total_flux += vel[3] * r * wr * wθ * a * b # extra r from polar area element
     end
 
     total_flux
@@ -96,14 +95,7 @@ excavate = MicroSwimmer([
 ])
 
 
-# swimming
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
-solve_problem!(prob)
-traj = continue_periodic_trajectory(prob.traj, 100)
-animate(traj, excavate)
-
-#Fit helix to Trajectory
-helix = fit_helix(traj)
+helix = runSwim(excavate)
 
 #Get helix quantites
 vels = axis_velocity(helix)
@@ -113,7 +105,7 @@ pol = axis_polar_angle(helix)
 aziDir = axis_azimuthal_angle(helix)
 curv = curvature(helix)
 
-e = runFeed(excavate)
+e,flu = runFeed(excavate)
 
 
 

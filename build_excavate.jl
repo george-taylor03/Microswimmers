@@ -62,10 +62,10 @@ u = FluidVelocity(prob)
 fig = stream(u, range(-15, 15, 50), range(0, 15, 50); plane=:xz)
 move_boundary!(excavate, [0., 5., 0.], rotation_matrix([1., 0., 0.], -π/2), 0.0)
 viz!(fig.content[1], excavate)
-save("FluidVelocityotherpara.png",fig)
+save("FluidVelocityInitial.png",fig)
 
 
 ave_vf = TimeAveragedPlanarVelocityField(prob, range(-15, 15, 50), range(0, 15, 50); plane=:xz)
 fig = stream(ave_vf)
 viz!(fig.content[1], excavate)
-save("TimeAveragedPlanarVelocityFieldotherpara.png",fig)
+save("TimeAveragedPlanarVelocityFieldInitial.png",fig)
