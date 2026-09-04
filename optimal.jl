@@ -11,13 +11,13 @@ function runSwim(excavate)
     # swimming
     prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
     solve_problem!(prob)
-    traj = continue_periodic_trajectory(prob.traj, 100)
-    animate(traj, excavate)
+    # traj = continue_periodic_trajectory(prob.traj, 1)
+    # animate(traj, excavate)
 
     #Fit helix to Trajectory
-    helix = fit_helix(traj)
+    # helix = fit_helix(prob.traj, N=10)
     
-    helix
+    prob.traj
 end
 
 function runFeed(excavate)
@@ -68,15 +68,15 @@ function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
     total_flux
 end
 
-
-
 #Posterior flagellum
 f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
 posterior = PlanarVanedFlagellum(f, 0.1, 0.6, .7)
 design(posterior, limits=(-1., 15., -5., 5., -5., 5.))
 
+anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, -4π/32, 1.0, 1.25, 0.1, 12.5, π/32, 0., 0.)
 anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
+
 design(anterior, limits=(-1., 15., -5., 5., -5., 5.))
 
 
@@ -95,7 +95,26 @@ excavate = MicroSwimmer([
 ])
 
 
-helix = runSwim(excavate)
+traj = runSwim(excavate)
+
+traj2 = continue_periodic_trajectory(traj, 10)
+
+# Fit a helix to the computed trajectory before evaluating or plotting it.
+helix = fit_helix(traj, N=10)
+
+#Plot Trajectory against hel
+lines(traj2.x)
+
+
+lines!(helix(traj2.t))
+
+lines!(helix)
+
+
+println(traj2.t)
+
+#manual vel
+mVel = sqrt(traj.x[end][1]^2 + traj.x[end][2]^2 + traj.x[end][3]^2)
 
 #Get helix quantites
 vels = axis_velocity(helix)
