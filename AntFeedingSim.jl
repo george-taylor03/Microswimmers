@@ -67,11 +67,8 @@ flu = zeros(nele,nazi)
 # #For loop to investigate 
 for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
-    for (i, elv) in enumerate(eleCurvs)
+    for (row, elv) in enumerate(eleCurvs)
         anterior.C_θ = elv
-        
-        #Start from bottom left (azi and ele -pi/4 to start)
-        row = length(eleCurvs) - i + 1
 
         anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
 
@@ -97,7 +94,7 @@ for (col, azi) in enumerate(aziCurvs)
             solve_problem!(rprob)
             push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
             # push!(fluxes, velocity_flux_polar(u, -25, 0.0, 0, 3.9))
-            push!(powers, abs(total_power(rprob)))
+            push!(powers, total_power(rprob))
         end     
 
         flux = mean(fluxes)
@@ -127,7 +124,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,eff)
+hm = heatmap!(ax,aziCurvs,eleCurvs,eff')
 
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
@@ -141,7 +138,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,flu)
+hm = heatmap!(ax,aziCurvs,eleCurvs,flu')
 
 Colorbar(fig[1,2],hm,label = "Volumetric Flux")
 
