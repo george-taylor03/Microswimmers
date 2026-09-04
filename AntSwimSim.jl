@@ -67,11 +67,11 @@ prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
 # #For loop to investigate 
 for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
-    for (i, elv) in enumerate(eleCurvs)
+    for (row, elv) in enumerate(eleCurvs)
         anterior.C_θ = elv
         
         #Start from bottom left (azi and ele -pi/4 to start)
-        row = length(eleCurvs) - i + 1
+        # row = length(eleCurvs) - i + 1
 
         #update parameters
         update_boundary!(excavate,0.0)
@@ -105,7 +105,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,vels)
+hm = heatmap!(ax,aziCurvs,eleCurvs,vels')
 
 Colorbar(fig[1,2],hm,label = L"Velocity\;  v\;(\mu\mathrm{m}/\text{beat})")
 
@@ -118,7 +118,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,angVels)
+hm = heatmap!(ax,aziCurvs,eleCurvs,angVels')
 
 Colorbar(fig[1,2],hm,label = L"Angular \; Velocity \; \omega\;\text{(rad/beat)}")
 
@@ -131,7 +131,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,tor)
+hm = heatmap!(ax,aziCurvs,eleCurvs,tor')
 
 Colorbar(fig[1,2],hm,label = L"Torsion \; \tau\;(\mu\mathrm{m}^{-1})")
 
@@ -144,7 +144,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,pol)
+hm = heatmap!(ax,aziCurvs,eleCurvs,pol')
 
 Colorbar(fig[1,2],hm,label = L"Polar \; Angle \; \theta\;\text{(rad)}")
 
@@ -157,7 +157,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,aziDir)
+hm = heatmap!(ax,aziCurvs,eleCurvs,aziDir')
 
 Colorbar(fig[1,2],hm,label = L"Azimuthal \; Direction \; \phi\;\text{(rad)}")
 
@@ -170,7 +170,7 @@ ax = Axis(fig[1,1],
 )
 
 
-hm = heatmap!(ax,aziCurvs,eleCurvs,curv)
+hm = heatmap!(ax,aziCurvs,eleCurvs,curv')
 
 Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
 
