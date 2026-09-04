@@ -95,8 +95,15 @@ excavate = MicroSwimmer([
     Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
 ])
 
-#get helix
-helix = runSwim(excavate)
+
+# swimming
+prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
+solve_problem!(prob)
+traj = continue_periodic_trajectory(prob.traj, 100)
+animate(traj, excavate)
+
+#Fit helix to Trajectory
+helix = fit_helix(traj)
 
 #Get helix quantites
 vels = axis_velocity(helix)
