@@ -19,11 +19,11 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # jakoba_pars = (a = 3.9, b = 2.2, c = 2.2, a_g = 3.9, b_g = 2.2, c_g = 2.2, p_a = 2, p_b = 2, p_c = 2, z_s = 0.85, θ = 0.0, κ_x = 0.1, κ_y = 0.15)
 # excavate_body_tool(body)
 
-#azimuthal curvature
-aziWave = collect(-pi/4:pi/32:pi/4)
+#azimuthal wavelength
+aziWave = collect(5:0.5:15)
 
-#elevation curvatures
-eleWave = collect(-pi/4:pi/32:pi/4)
+#elevation wavelength
+eleWave = collect(5:0.5:15)
 
 #Number of azi and ele ppoints
 nazi = length(aziWave)
