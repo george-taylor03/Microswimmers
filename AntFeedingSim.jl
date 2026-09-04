@@ -61,6 +61,9 @@ nele = length(eleCurvs)
 #All Effeciencys
 eff = zeros(nele,nazi)
 
+#All fluxes
+flu = zeros(nele,nazi)
+
 # #For loop to investigate 
 for (col, azi) in enumerate(aziCurvs)
     anterior.Cᵩ = azi
@@ -110,6 +113,9 @@ for (col, azi) in enumerate(aziCurvs)
 
         #update Effeciency matrix
         eff[row,col] = e
+
+        #Update flux
+        flu[row,col] = abs(flux)
         
     end
 end
@@ -126,4 +132,18 @@ hm = heatmap!(ax,aziCurvs,eleCurvs,eff)
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
 save("curvatureFeedingHEAT.png",fig)
+
+
+fig = Figure()
+ax = Axis(fig[1,1],
+    xlabel = "Azimuthal curvature",
+    ylabel = "Elevation curvature",
+)
+
+
+hm = heatmap!(ax,aziCurvs,eleCurvs,flu)
+
+Colorbar(fig[1,2],hm,label = "Volumetric Flux")
+
+save("curvatureFluxHEAT.png",fig)
 

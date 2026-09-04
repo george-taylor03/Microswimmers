@@ -31,13 +31,6 @@ function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
     total_flux
 end
 
-function total_power2(prob)
-    # check_solved!(prob) 
-    forces = get_forces(prob)
-    vels = get_velocities(prob)
-    sum(dot(forces[n], vels[n]) for n in prob.points.nearest)
-end
-
 #Posterior flagellum
 f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
@@ -69,6 +62,9 @@ nele = length(eleAmp)
 
 #All Effeciencys
 eff = zeros(nele,nazi)
+
+#All fluxes
+flu = zeros(nele,nazi)
 
 # #For loop to investigate 
 for (col, azi) in enumerate(aziAmp)
@@ -118,6 +114,9 @@ for (col, azi) in enumerate(aziAmp)
         #update Effeciency matrix
         eff[row,col] = e
         
+        #Update flux
+        flu[row,col] = abs(flux)
+
     end
 end
 
@@ -134,3 +133,15 @@ Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
 save("AmpFeedingHEAT.png",fig)
 
+fig = Figure()
+ax = Axis(fig[1,1],
+    xlabel = "Azimuthal curvature",
+    ylabel = "Elevation curvature",
+)
+
+
+hm = heatmap!(ax,aziCurvs,eleCurvs,flu)
+
+Colorbar(fig[1,2],hm,label = "Volumetric Flux")
+
+save("curvatureFluxHEAT.png",fig)

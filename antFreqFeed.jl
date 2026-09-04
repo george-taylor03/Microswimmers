@@ -64,6 +64,9 @@ nele = length(eleFrq)
 #All Effeciencys
 eff = zeros(nele,nazi)
 
+#All fluxes
+flu = zeros(nele,nazi)
+
 # #For loop to investigate 
 for (col, azi) in enumerate(aziFrq)
     anterior.fᵩ = azi
@@ -96,7 +99,7 @@ for (col, azi) in enumerate(aziFrq)
             update_boundary!(rprob, t)
             solve_problem!(rprob)
             push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
-            push!(powers, total_power(rprob))
+            push!(powers, abs(total_power(rprob)))
         end     
         flux = mean(fluxes)
         power = mean(powers)
@@ -110,6 +113,8 @@ for (col, azi) in enumerate(aziFrq)
         #update Effeciency matrix
         eff[row,col] = e
         
+        #Update flux
+        flu[row,col] = abs(flux)
     end
 end
 
@@ -125,4 +130,17 @@ hm = heatmap!(ax,aziFrq,eleFrq,eff)
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
 save("FrequencyFeedingHEAT.png",fig)
+
+fig = Figure()
+ax = Axis(fig[1,1],
+    xlabel = "Azimuthal Frequency",
+    ylabel = "Elevation Frequency",
+)
+
+
+hm = heatmap!(ax,aziFrq,aziFrq,flu)
+
+Colorbar(fig[1,2],hm,label = "Volumetric Flux")
+
+save("FrequencyFluxHEAT.png",fig)
 
