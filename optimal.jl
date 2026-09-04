@@ -9,9 +9,9 @@ include("excavate_body_design.jl")
 
 function runSwim(excavate)
     # swimming
-    prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
+    prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.01)
     solve_problem!(prob)
-    # traj = continue_periodic_trajectory(prob.traj, 1)
+    # traj = continue_periodic_trajectory(prob.traj, 10)
     # animate(traj, excavate)
 
     #Fit helix to Trajectory
@@ -74,8 +74,8 @@ f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.
 posterior = PlanarVanedFlagellum(f, 0.1, 0.6, .7)
 design(posterior, limits=(-1., 15., -5., 5., -5., 5.))
 
-anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, -4π/32, 1.0, 1.25, 0.1, 12.5, π/32, 0., 0.)
-anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
+anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, -0.7853981633974483, 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 0., 0.)
+anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 0., 0.)
 
 design(anterior, limits=(-1., 15., -5., 5., -5., 5.))
 
@@ -89,29 +89,24 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 
 ## Construct discretised parts
 excavate = MicroSwimmer([
-    Part(body, 313, 3117),
-    Part(posterior, 31, 117; location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
-    Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
+    Part(body, 313, 313*16, eps = 0.01),
+    Part(posterior; eps = 0.1,location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
+    Part(anterior; eps = 0.1, location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3))
 ])
 
 
 traj = runSwim(excavate)
 
-traj2 = continue_periodic_trajectory(traj, 10)
+traj2 = continue_periodic_trajectory(traj, 100)
 
 # Fit a helix to the computed trajectory before evaluating or plotting it.
-helix = fit_helix(traj, N=10)
+helix = fit_helix(traj, N=100)
 
 #Plot Trajectory against hel
 lines(traj2.x)
 
 
 lines!(helix(traj2.t))
-
-lines!(helix)
-
-
-println(traj2.t)
 
 #manual vel
 mVel = sqrt(traj.x[end][1]^2 + traj.x[end][2]^2 + traj.x[end][3]^2)

@@ -70,13 +70,15 @@ for (col, azi) in enumerate(aziCurvs)
     for (row, elv) in enumerate(eleCurvs)
         anterior.C_θ = elv
 
-        anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
+        anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3), eps = 0.1 )
 
         excavate = MicroSwimmer([
-            Part(body, 313, 3117),
-            Part(posterior, 31, 117; location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
-            anterior_part
-        ])
+            Part(body, 313, 16*313, eps=0.01),
+            Part(posterior; eps=0.1, location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
+            anterior_part,
+            ],
+            location=[0., 0., 10.0]
+        )
         # animate(excavate)
 
         #Initialise swimming problem 
