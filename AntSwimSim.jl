@@ -37,8 +37,6 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
         traj2, helix = attempt_fit(traj, trajN_min)
         mVel = norm(traj2.x[end][1:3])
         vEst = abs(axis_velocity(helix))
-        # t = torsion(helix)
-        # println("Torsion $t")
     end
     helix
 end
@@ -128,13 +126,6 @@ for (col, azi) in enumerate(aziCurvs)
         pol[row,col] = axis_polar_angle(helix)
         aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
         curv[row,col] = curvature(helix)
-
-
-        t = torsion(helix)
-        if t < -10
-            println("Torsion less than 10 at azi: $azi, elv: $elv")
-            println("Torsion: $t")
-        end
     end
 end
 

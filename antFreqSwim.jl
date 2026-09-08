@@ -114,7 +114,7 @@ for (col, azi) in enumerate(aziFrq)
         solve_problem!(prob)
 
         #Fit helix to Trajectory
-        helix = helix(prob.traj)
+        helix = multFix(prob.traj)
 
         #Get helix quantites
         vels[row,col] = axis_velocity(helix)
