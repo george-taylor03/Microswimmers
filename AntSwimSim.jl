@@ -6,6 +6,43 @@ using FastGaussQuadrature
 using Statistics
 include("excavate_body_design.jl")
 
+#Fits helix to trajectory with N repeats and returns repeated trajectory and fitted helix
+function attempt_fit(traj, trajN)
+    traj2 = continue_periodic_trajectory(traj, trajN)
+    helix = fit_helix(traj, N=trajN)
+    traj2, helix
+end
+
+function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
+    #Number of chosen periodic repeats
+    trajN = trajN_start
+    #Tries N=100
+    traj2, helix = try
+        attempt_fit(traj, trajN)
+    #Tries N=20 (found to be best number for no fitting error)
+    catch
+        @info "Error fitting helix to trajectory, reduce repeat number"
+        trajN = trajN_min
+        attempt_fit(traj, trajN_min)
+    end
+
+    #Works out trajectory velocity and helix velocity
+    #Positive divided by number of repeats (N=1 is 1 time period)
+    mVel = norm(traj2.x[end][1:3]) / trajN_min
+    vEst = abs(axis_velocity(helix))
+
+    #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
+    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
+        trajN_min -= 1
+        traj2, helix = attempt_fit(traj, trajN_min)
+        mVel = norm(traj2.x[end][1:3])
+        vEst = abs(axis_velocity(helix))
+        # t = torsion(helix)
+        # println("Torsion $t")
+    end
+    helix
+end
+
 #Posterior flagellum
 f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
@@ -48,8 +85,6 @@ aziDir = similar(vels)
 curv = similar(vels)
 
 anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
-# anterior = ThreeDimensionalFlagellum{Float64}(9.0, 1.0, 0.0, 1.16, 14.0, 0.16, 1.0, 0.8, 0.53, 21.0, -0.16, 0.0, 0.3584073464102069)
-design(anterior, limits=(-1., 15., -5., 5., -5., 5.))
 
 anterior_part = Part(anterior; eps = 0.1, location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3))
 
@@ -62,7 +97,7 @@ excavate = MicroSwimmer([
 # animate(excavate)
 
 #Initialise swimming problem 
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
+prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.05)
 
 
 # #For loop to investigate 
@@ -80,22 +115,25 @@ for (col, azi) in enumerate(aziCurvs)
         # swimming
         # prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
         solve_problem!(prob)
-        # traj = continue_periodic_trajectory(prob.traj, 1)
-        # animate(traj, excavate)
 
-        #Fit helix to Trajectory
-        helix = fit_helix(prob.traj , N=10)
+
+        # println("Azi: $azi, elv: $elv")
+        #Fits best helix
+        helix = multFix(prob.traj)
 
         #Get helix quantites
         vels[row,col] = axis_velocity(helix)
         angVels[row,col] = axis_angular_velocity(helix)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
-        aziDir[row,col] = axis_azimuthal_angle(helix)
+        aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
         curv[row,col] = curvature(helix)
 
-        if axis_velocity(helix) > 4
-            println("Velocity greater than 4 at azi: $azi, elv: $elv")
+
+        t = torsion(helix)
+        if t < -10
+            println("Torsion less than 10 at azi: $azi, elv: $elv")
+            println("Torsion: $t")
         end
     end
 end
@@ -181,4 +219,3 @@ hm = heatmap!(ax,aziCurvs,eleCurvs,curv')
 Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
 
 save("curvatureANDcurvatureHEAT.png",fig)
-

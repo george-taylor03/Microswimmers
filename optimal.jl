@@ -9,7 +9,7 @@ include("excavate_body_design.jl")
 
 function runSwim(excavate)
     # swimming
-    prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.01)
+    prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.05)
     solve_problem!(prob)
     # traj = continue_periodic_trajectory(prob.traj, 10)
     # animate(traj, excavate)
@@ -74,11 +74,10 @@ f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.
 posterior = PlanarVanedFlagellum(f, 0.1, 0.6, .7)
 design(posterior, limits=(-1., 15., -5., 5., -5., 5.))
 
-anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, -0.7853981633974483, 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 0., 0.)
-anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 1.0, 1.25, 0.1, 12.5, 0.09817477042468103, 0., 0.)
+anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0.0, 1.0, 1.25, 0.1, 12.5, 0.04908738521234052, 0., 0.)
+# anterior = ThreeDimensionalFlagellum(9., 1.0, 1.0, 1.25, 12.5, -0.7853981633974483, 1.0, 1.0, 1.25, 12.5, -0.2454369260617026, 0., 0.)
 
 design(anterior, limits=(-1., 15., -5., 5., -5., 5.))
-
 
 ##excavate body
 # jakoba parameters
@@ -97,10 +96,12 @@ excavate = MicroSwimmer([
 
 traj = runSwim(excavate)
 
-traj2 = continue_periodic_trajectory(traj, 100)
+trajN = 100
+
+traj2 = continue_periodic_trajectory(traj, trajN)
 
 # Fit a helix to the computed trajectory before evaluating or plotting it.
-helix = fit_helix(traj, N=100)
+helix = fit_helix(traj, N=trajN)
 
 #Plot Trajectory against hel
 lines(traj2.x)

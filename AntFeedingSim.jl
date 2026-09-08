@@ -6,7 +6,7 @@ using FastGaussQuadrature
 using Statistics
 include("excavate_body_design.jl")
 
-function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
+function velocity_flux_polar_ellip_z0(u, x, y0, z0, a, b; Nr=20, Nθ=20)
     #Ellipsoid R=1
     R=1
 
@@ -22,10 +22,10 @@ function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
 
     total_flux = 0.0
     for (r, wr) in zip(rs, wrs), (θ, wθ) in zip(θs, wθs)
-        x = x0 + r * cos(θ) * a
-        y = y0 + r * sin(θ) * b
+        z = z0 + r * sin(θ) * a
+        y = y0 + r * cos(θ) * b
         vel = u([x, y, z])
-        total_flux += vel[3] * r * wr * wθ * a * b # extra r from polar area element
+        total_flux += vel[1] * r * wr * wθ * a * b # extra r from polar area element
     end
 
     total_flux
@@ -94,7 +94,7 @@ for (col, azi) in enumerate(aziCurvs)
         for t in range(0,1,10)[1:end-1]
             update_boundary!(rprob, t)
             solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
+            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0, 10., 2.1, 1.1))
             # push!(fluxes, velocity_flux_polar(u, -25, 0.0, 0, 3.9))
             push!(powers, total_power(rprob))
         end     

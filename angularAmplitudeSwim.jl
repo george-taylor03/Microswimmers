@@ -6,6 +6,41 @@ using FastGaussQuadrature
 using Statistics
 include("excavate_body_design.jl")
 
+#Fits helix to trajectory with N repeats and returns repeated trajectory and fitted helix
+function attempt_fit(traj, trajN)
+    traj2 = continue_periodic_trajectory(traj, trajN)
+    helix = fit_helix(traj, N=trajN)
+    traj2, helix
+end
+
+function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
+    #Number of chosen periodic repeats
+    trajN = trajN_start
+    #Tries N=100
+    traj2, helix = try
+        attempt_fit(traj, trajN)
+    #Tries N=20 (found to be best number for no fitting error)
+    catch
+        @info "Error fitting helix to trajectory, reduce repeat number"
+        trajN = trajN_min
+        attempt_fit(traj, trajN_min)
+    end
+
+    #Works out trajectory velocity and helix velocity
+    #Positive divided by number of repeats (N=1 is 1 time period)
+    mVel = norm(traj2.x[end][1:3]) / trajN_min
+    vEst = abs(axis_velocity(helix))
+
+    #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
+    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
+        trajN_min -= 1
+        traj2, helix = attempt_fit(traj, trajN_min)
+        mVel = norm(traj2.x[end][1:3])
+        vEst = abs(axis_velocity(helix))
+    end
+    helix
+end
+
 #Posterior flagellum
 f = PlanarStandingWaveFlagellum{Float64}(10.0, 6.283185307179586, 0.0, [0.15, 0.0, -0.35, 0.0], [-0.3, 0.4, 0.0, -0.3])
 
@@ -20,10 +55,10 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # excavate_body_tool(body)
 
 #azimuthal Amplitude
-aziAmp = collect(0:0.1:1.5)
+aziAmp = collect(0:0.05:1.5)
 
 #elevation Amplitude
-eleAmp = collect(0:0.1:1.5)
+eleAmp = collect(0:0.05:1.5)
 
 #Number of azi and ele ppoints
 nazi = length(aziAmp)
@@ -61,7 +96,7 @@ excavate = MicroSwimmer([
 # animate(excavate)
 
 #Initialise swimming problem 
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
+prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.01)
 
 
 # #For loop to investigate 
@@ -69,27 +104,26 @@ for (col, azi) in enumerate(aziAmp)
     anterior.Aᵩ = azi
     for (row, elv) in enumerate(eleAmp)
         anterior.A_θ = elv
-        
-        # row = length(eleAmp) - i + 1
 
+                #update parameters
         #update parameters
         update_boundary!(excavate,0.0)
 
         # swimming
         # prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
         solve_problem!(prob)
-        # traj = continue_periodic_trajectory(prob.traj, 1)
-        # animate(traj, excavate)
 
-        #Fit helix to Trajectory
-        helix = fit_helix(prob.traj , N=10)
+
+        # println("Azi: $azi, elv: $elv")
+        #Fits best helix
+        helix = multFix(prob.traj)
 
         #Get helix quantites
         vels[row,col] = axis_velocity(helix)
         angVels[row,col] = axis_angular_velocity(helix)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
-        aziDir[row,col] = axis_azimuthal_angle(helix)
+        aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
         curv[row,col] = curvature(helix)
     end
 end
