@@ -23,19 +23,19 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
     catch
         @info "Error fitting helix to trajectory, reduce repeat number"
         trajN = trajN_min
-        attempt_fit(traj, trajN_min)
+        attempt_fit(traj, trajN)
     end
 
     #Works out trajectory velocity and helix velocity
     #Positive divided by number of repeats (N=1 is 1 time period)
-    mVel = norm(traj2.x[end][1:3]) / trajN_min
+    mVel = norm(traj2.x[end][1:3]) / trajN
     vEst = abs(axis_velocity(helix))
 
     #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
-    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
-        trajN_min -= 1
-        traj2, helix = attempt_fit(traj, trajN_min)
-        mVel = norm(traj2.x[end][1:3])
+    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 1 || axis_polar_angle(helix) > π) && trajN > 10
+        trajN -= 1
+        traj2, helix = attempt_fit(traj, trajN)
+        mVel = norm(traj2.x[end][1:3]) / trajN
         vEst = abs(axis_velocity(helix))
     end
     helix
@@ -95,7 +95,7 @@ excavate = MicroSwimmer([
 # animate(excavate)
 
 #Initialise swimming problem 
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
+prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.01)
 
 
 # #For loop to investigate 
@@ -121,7 +121,7 @@ for (col, azi) in enumerate(aziFrq)
         angVels[row,col] = axis_angular_velocity(helix)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
-        aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
+        aziDir[row,col] = axis_azimuthal_angle(helix)
         curv[row,col] = curvature(helix)
     end
 end

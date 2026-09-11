@@ -6,7 +6,7 @@ using FastGaussQuadrature
 using Statistics
 include("excavate_body_design.jl")
 
-function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
+function velocity_flux_polar_ellip_z0(u, x, y0, z0, a, b; Nr=20, Nθ=20)
     #Ellipsoid R=1
     R=1
 
@@ -22,13 +22,34 @@ function velocity_flux_polar_ellip_z0(u, x0, y0, z, a, b; Nr=20, Nθ=20)
 
     total_flux = 0.0
     for (r, wr) in zip(rs, wrs), (θ, wθ) in zip(θs, wθs)
-        x = x0 + r * cos(θ) * a
-        y = y0 + r * sin(θ) * b
+        z = z0 + r * sin(θ) * b
+        y = y0 + r * cos(θ) * a
         vel = u([x, y, z])
-        total_flux += vel[3] * r * wr * wθ * a * b # extra r from polar area element
+        total_flux += vel[1] * r * wr * wθ * a * b # extra r from polar area element
     end
 
     total_flux
+end
+
+
+function feedingEfficiency(rprob, u)
+    fluxes = []
+    powers = []
+    for t in range(0,1,10)[1:end-1]
+        update_boundary!(rprob, t)
+        solve_problem!(rprob)
+        push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0, 10., 2.1, 1.1))
+        push!(powers, total_power(rprob))
+    end     
+
+    flux = mean(fluxes)
+    power = mean(powers)
+    @info "" flux
+    @info "" power
+
+    e = (flux^2) / power
+
+    e
 end
 
 #Posterior flagellum
@@ -47,13 +68,10 @@ groove = Posed(SuperEllipsoid(3.9, 2.2, 2.2; κx = 0.1, κy = 0.15), Frame([0., 
 body = ImplicitExcavateBody(el, groove, 50.0) 
 # jakoba_pars = (a = 3.9, b = 2.2, c = 2.2, a_g = 3.9, b_g = 2.2, c_g = 2.2, p_a = 2, p_b = 2, p_c = 2, z_s = 0.85, θ = 0.0, κ_x = 0.1, κ_y = 0.15)
 
-#Radius
-r = 3.9
-
-#azimuthal Amplitude
+#azimuthal wavelength
 aziWave = collect(5:0.5:15)
 
-#elevation Amplitude
+#elevation wavelength
 eleWave = collect(5:0.5:15)
 
 #Number of azi and ele ppoints
@@ -72,48 +90,31 @@ for (col, azi) in enumerate(aziWave)
     for (row, elv) in enumerate(eleWave)
         anterior.λ_θ = elv
 
-        anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
+        #update problem
+        anterior_part = Part(anterior; eps = 0.1, location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3))
 
         excavate = MicroSwimmer([
-            Part(body, 313, 3117),
-            Part(posterior, 31, 117; location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
-            anterior_part
-        ])
-        # animate(excavate)
+            Part(body, 313, 16*313, eps=0.01),
+            Part(posterior; eps=0.1, location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
+            anterior_part,
+            ],
+            location=[0., 0., 10.0]
+        )
 
         #Initialise swimming problem 
-        rprob = ResistanceProblem(excavate, eps=0.1, wall=true)
+        rprob = ResistanceProblem(excavate, wall=true)
 
-        # Update Problem
-        # update_boundary!(excavate,0.0)
+
         #Get fluid velocity
         u = FluidVelocity(rprob)
-        
-        fluxes = []
-        powers = []
-        for t in range(0,1,10)[1:end-1]
-            update_boundary!(rprob, t)
-            solve_problem!(rprob)
-            push!(fluxes, velocity_flux_polar_ellip_z0(u, 0, 0.0, 0.2, 3.8, 2.1))
-            push!(powers, total_power(rprob))
-        end     
-        flux = mean(fluxes)
-        power = mean(powers)
-        @info "" flux
-        @info "" power
 
-        e = (flux^2)  / power
+        #calculate feedingEfficiency
+        e = feedingEfficiency(rprob, u)
 
         # #Effeciency
         println("Effeciency: $e")
-        # println("Power}: $power")
-
         #update Effeciency matrix
         eff[row,col] = e
-        
-        #Update flux
-        flu[row,col] = abs(flux)
-
     end
 end
 
@@ -128,17 +129,7 @@ hm = heatmap!(ax,aziWave,eleWave,eff')
 
 Colorbar(fig[1,2],hm,label = "Feeding Effeciency")
 
-save("WaveFeedingHEAT.png",fig)
-
-fig = Figure()
-ax = Axis(fig[1,1],
-    xlabel = "Azimuthal Wavelength",
-    ylabel = "Elevation Wavelength",
-)
+save("WavelengthFeedingHEAT.png",fig)
 
 
-hm = heatmap!(ax,aziWave,eleWave,flu')
 
-Colorbar(fig[1,2],hm,label = "Volumetric Flux")
-
-save("WaveFluxHEAT.png",fig)

@@ -13,7 +13,7 @@ function attempt_fit(traj, trajN)
     traj2, helix
 end
 
-function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
+function multFix(traj; trajN_start=200, trajN_min=50, tol=1.0)
     #Number of chosen periodic repeats
     trajN = trajN_start
     #Tries N=100
@@ -23,19 +23,19 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
     catch
         @info "Error fitting helix to trajectory, reduce repeat number"
         trajN = trajN_min
-        attempt_fit(traj, trajN_min)
+        attempt_fit(traj, trajN)
     end
 
     #Works out trajectory velocity and helix velocity
     #Positive divided by number of repeats (N=1 is 1 time period)
-    mVel = norm(traj2.x[end][1:3]) / trajN_min
+    mVel = norm(traj2.x[end][1:3]) / trajN
     vEst = abs(axis_velocity(helix))
 
     #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
-    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
-        trajN_min -= 1
-        traj2, helix = attempt_fit(traj, trajN_min)
-        mVel = norm(traj2.x[end][1:3])
+    while (abs(mVel - vEst) > 0.001 || abs(torsion(helix)) > 2 ||  axis_polar_angle(helix) > π || abs(axis_angular_velocity(helix)) > 2) && trajN > 5
+        trajN -= 1
+        traj2, helix = attempt_fit(traj, trajN)
+        mVel = norm(traj2.x[end][1:3]) / trajN
         vEst = abs(axis_velocity(helix))
     end
     helix
@@ -84,20 +84,18 @@ curv = similar(vels)
 
 anterior = ThreeDimensionalFlagellum(9., 1.0, 1.25, 0.1, 12.5, 0., 1.0, 1.25, 0.1, 12.5, 0., 0., 0.)
 # anterior = ThreeDimensionalFlagellum{Float64}(9.0, 1.0, 0.0, 1.16, 14.0, 0.16, 1.0, 0.8, 0.53, 21.0, -0.16, 0.0, 0.3584073464102069)
-design(anterior, limits=(-1., 15., -5., 5., -5., 5.))
 
-anterior_part = Part(anterior, 31, 117; location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3) )
+anterior_part = Part(anterior; eps = 0.1, location=[-3.9, 0., 0.25],orientation=rotation_matrix([0, 1.0, 0.0], -2π/3))
 
 excavate = MicroSwimmer([
-    Part(body, 313, 3117),
-    Part(posterior, 31, 117; location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
+    Part(body, 313, 313*16, eps = 0.01),
+    Part(posterior; eps = 0.1,location=[-3.7, 0.0, 0.25],orientation=rotation_matrix([0.0, 1.0, 0.0], -π/36)),
     anterior_part
 ])
 # animate(excavate)
 
 #Initialise swimming problem 
-prob = SwimmingTrajectoryProblem(excavate, eps=0.1, t_final=1.0, saveat=0.01)
-
+prob = SwimmingTrajectoryProblem(excavate, t_final=1.0, saveat=0.01)
 
 # #For loop to investigate 
 for (col, azi) in enumerate(aziWave)
@@ -122,7 +120,7 @@ for (col, azi) in enumerate(aziWave)
         angVels[row,col] = axis_angular_velocity(helix)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
-        aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
+        aziDir[row,col] = axis_azimuthal_angle(helix)
         curv[row,col] = curvature(helix)
     end
 end

@@ -35,7 +35,7 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
     while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
         trajN_min -= 1
         traj2, helix = attempt_fit(traj, trajN_min)
-        mVel = norm(traj2.x[end][1:3])
+        mVel = norm(traj2.x[end][1:3]) / trajN_min
         vEst = abs(axis_velocity(helix))
     end
     helix

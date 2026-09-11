@@ -13,7 +13,7 @@ function attempt_fit(traj, trajN)
     traj2, helix
 end
 
-function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
+function multFix(traj; trajN_start=1000, trajN_min=100, tol=1.0)
     #Number of chosen periodic repeats
     trajN = trajN_start
     #Tries N=100
@@ -23,19 +23,19 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
     catch
         @info "Error fitting helix to trajectory, reduce repeat number"
         trajN = trajN_min
-        attempt_fit(traj, trajN_min)
+        attempt_fit(traj, trajN)
     end
 
     #Works out trajectory velocity and helix velocity
     #Positive divided by number of repeats (N=1 is 1 time period)
-    mVel = norm(traj2.x[end][1:3]) / trajN_min
+    mVel = norm(traj2.x[end][1:3]) / trajN
     vEst = abs(axis_velocity(helix))
 
     #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
-    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 5 ) && trajN_min > 10
-        trajN_min -= 1
-        traj2, helix = attempt_fit(traj, trajN_min)
-        mVel = norm(traj2.x[end][1:3])
+    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 0.8 || axis_polar_angle(helix) > π) && trajN > 10
+        trajN -= 1
+        traj2, helix = attempt_fit(traj, trajN)
+        mVel = norm(traj2.x[end][1:3]) / trajN
         vEst = abs(axis_velocity(helix))
     end
     helix
@@ -55,10 +55,10 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # excavate_body_tool(body)
 
 #azimuthal Amplitude
-aziAmp = collect(0:0.05:1.5)
+aziAmp = collect(0:0.1:1.5)
 
 #elevation Amplitude
-eleAmp = collect(0:0.05:1.5)
+eleAmp = collect(0:0.1:1.5)
 
 #Number of azi and ele ppoints
 nazi = length(aziAmp)
@@ -123,7 +123,7 @@ for (col, azi) in enumerate(aziAmp)
         angVels[row,col] = axis_angular_velocity(helix)
         tor[row,col] = torsion(helix)
         pol[row,col] = axis_polar_angle(helix)
-        aziDir[row,col] = mod2pi(axis_azimuthal_angle(helix) + π) - π
+        aziDir[row,col] = axis_azimuthal_angle(helix)
         curv[row,col] = curvature(helix)
     end
 end
