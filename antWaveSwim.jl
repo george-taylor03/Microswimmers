@@ -13,7 +13,7 @@ function attempt_fit(traj, trajN)
     traj2, helix
 end
 
-function multFix(traj; trajN_start=200, trajN_min=50, tol=1.0)
+function multFix(traj; trajN_start=200, trajN_min=40, tol=1.0)
     #Number of chosen periodic repeats
     trajN = trajN_start
     #Tries N=100
@@ -29,14 +29,14 @@ function multFix(traj; trajN_start=200, trajN_min=50, tol=1.0)
     #Works out trajectory velocity and helix velocity
     #Positive divided by number of repeats (N=1 is 1 time period)
     mVel = norm(traj2.x[end][1:3]) / trajN
-    vEst = abs(axis_velocity(helix))
+    vEst = axis_velocity(helix)
 
     #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
-    while (abs(mVel - vEst) > 0.001 || abs(torsion(helix)) > 2 ||  axis_polar_angle(helix) > π || abs(axis_angular_velocity(helix)) > 2) && trajN > 5
+    while (abs(mVel - vEst) > 0.005 || abs(torsion(helix)) > 2 || abs(axis_angular_velocity(helix)) > 2) && trajN > 5
         trajN -= 1
         traj2, helix = attempt_fit(traj, trajN)
         mVel = norm(traj2.x[end][1:3]) / trajN
-        vEst = abs(axis_velocity(helix))
+        vEst = axis_velocity(helix)
     end
     helix
 end
@@ -126,8 +126,6 @@ for (col, azi) in enumerate(aziWave)
 end
 
 
-        
-
 #Create Figure
 fig = Figure()
 ax = Axis(fig[1,1],
@@ -206,4 +204,3 @@ hm = heatmap!(ax,aziWave,eleWave,curv')
 Colorbar(fig[1,2],hm,label = L"Curvature\;\kappa\;(\mu\mathrm{m}^{-1})")
 
 save("WavelengthANDcurvatureHEAT.png",fig)
-

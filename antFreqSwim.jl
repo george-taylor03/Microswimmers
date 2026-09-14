@@ -29,14 +29,14 @@ function multFix(traj; trajN_start=100, trajN_min=20, tol=1.0)
     #Works out trajectory velocity and helix velocity
     #Positive divided by number of repeats (N=1 is 1 time period)
     mVel = norm(traj2.x[end][1:3]) / trajN
-    vEst = abs(axis_velocity(helix))
+    vEst = axis_velocity(helix)
 
     #Reduces periodic trajectory to a N that is compliant i.e quantites are suitable
-    while (abs(mVel - vEst) > tol || abs(torsion(helix)) > 1 || axis_polar_angle(helix) > π) && trajN > 10
+    while (abs(mVel - vEst) > 0.01 || abs(torsion(helix)) > 1 || axis_polar_angle(helix) > π) && trajN > 10
         trajN -= 1
         traj2, helix = attempt_fit(traj, trajN)
         mVel = norm(traj2.x[end][1:3]) / trajN
-        vEst = abs(axis_velocity(helix))
+        vEst = axis_velocity(helix)
     end
     helix
 end
@@ -55,10 +55,10 @@ body = ImplicitExcavateBody(el, groove, 50.0)
 # excavate_body_tool(body)
 
 #azimuthal Frequency
-aziFrq = collect(0:0.25:5)
+aziFrq = collect(0:0.1:2.5)
 
 #elevation Frequency
-eleFrq = collect(0:0.25:5)
+eleFrq = collect(0:0.1:2.5)
 
 #Number of azi and ele ppoints
 nazi = length(aziFrq)

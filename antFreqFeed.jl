@@ -81,8 +81,6 @@ nele = length(eleFrq)
 #All Effeciencys
 eff = zeros(nele,nazi)
 
-#All fluxes
-flu = zeros(nele,nazi)
 
 # #For loop to investigate 
 for (col, azi) in enumerate(aziFrq)
